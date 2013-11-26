@@ -1,4 +1,11 @@
 <?php
+
+/**
+ * Invocie Class
+ *  
+ * @author Roman A <future.roman3@gmail.com> 
+ * @version 1.0.0 
+*/
   
 class Invoices {
     private $api;
@@ -15,7 +22,7 @@ class Invoices {
       return $this->api->request($route, $options);
     }
     
-    public function get($id, $callback) {           
+    public function get($id) {           
       $route = "/invoices/" + $id;
       $options = array();
       return $this->api->request($route, $options);

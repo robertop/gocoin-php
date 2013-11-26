@@ -1,4 +1,11 @@
 <?php
+/**
+ * App Class
+ *  
+ * @author Roman A <future.roman3@gmail.com> 
+ * @version 1.0.0 
+*/
+
 class  Apps{
     private $api;
     public function __construct($api) {

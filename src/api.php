@@ -27,9 +27,16 @@ class Api{
         $this->apps = new Apps($this);
         $this->invoices = new Invoices($this);
         $this->accounts = new Accounts($this);
-    } 
+    }
     
-    public function request($route, $options, $callback) {      
+    /**
+    * Do process request
+    *  
+    * @param string $route Route string for request
+    * @param array $options Array of options
+    */
+    
+    public function request($route, $options) {      
       if (!(($route != null) && is_string($route))) {
         throw new Exception('Api Request: Route was not defined');
       }
@@ -37,11 +44,11 @@ class Api{
         throw new Exception('Api not ready: Token was not defined');
       }
       $headers = $options['header'] ? $options['headers']:  $this->client->default_headers;
-      $headers['Authorization'] = "Bearer " + $this->client->token;
+      $headers['Authorization'] = "Bearer ".$this->client->getToken();
       $options = $this->client->options;      
       $config = array (
         'host' => $options['host'],
-        'path' => "" + $options['path'] + "/" + $options['api_version'] + $route,
+        'path' => "".$options['path']."/".$options['api_version'].$route,
         'method' => options.method,
         'port' => $this->client->port($options['secure']),
         'headers' => $headers,

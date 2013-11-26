@@ -8,27 +8,54 @@
 */
 
 class Auth {
+    /**
+    * constant value for required params of passsword authentication
+    * 
+    * @var array
+    */
     private $required_password_params = array('grant_type', 'client_id', 'client_secret', 'username', 'password', 'scope');
-    private $required_code_params = array('grant_type', 'client_id', 'client_secret', 'code', 'redirect_uri');
     
+    /**
+    * constant value for required params of code authentication
+    * 
+    * @var array
+    */
+    private $required_code_params = array('grant_type', 'client_id', 'client_secret', 'code', 'redirect_uri');
+   
+    /**
+    * Contrcutor
+    *  
+    * @param mixed $client
+    * @return Auth
+    */
     public function __construct($client) {
       $this->client = $client;      
     }
     
+    /**
+    * Return Authorization url to get auth_code 
+    *
+    * @return string 
+    */
     public function get_auth_url() {        
         $url = $this->client->get_dashboard_url()."/auth";
         $options = array(
             'response_type' => 'code',
             'client_id' => $this->client->options['client_id'],
             'redirect_uri' => $this->client->get_current_url(),
-            'scope' => 'invoice_read_write',
-            'state' => '6734'
+            'scope' => $this->client->options['scope'],            
         );
         $url = $this->client->create_get_url($url, $options);
         return $url;
     }
     
-    public function authenticate($options, $callback=false) {                  
+    /**
+    * do process authorization
+    * 
+    * @param array $options  Authorization options
+    */
+    
+    public function authenticate($options) {                  
       $required = array();
         if ($options['grant_type'] == 'password') {
             $required = $this->required_password_params;
@@ -45,11 +72,18 @@ class Auth {
         'path' => $options['path']. "/". $options['api_version'] . "/oauth/token",
         'method' => "POST",
         'port' => $this->client->port($options['secure']),
-        'headers' => $headers,
+        'headers' => null,
         'body' => $body
       );
       return $this->client->raw_request($config);
     }
+    
+    /**
+    * filter the options array according to the required options array
+    * 
+    * @param array $options
+    * @param array $required
+    */
     
     public function build_body($options, $required) {
         $result = array();

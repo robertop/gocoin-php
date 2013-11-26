@@ -13,6 +13,11 @@ require_once('api.php');
 require_once('auth.php');
 
 class Client {            
+    /**
+    * The default api options array
+    * 
+    * @var array
+    */
     private $default_options = array (
                   'client_id' => null,
                   'client_secret' =>null,
@@ -26,18 +31,48 @@ class Client {
                   'headers' => null,
                   'request_id' => null
             );
-    public $default_headers = array('Content-Type' => 'application/json');    
-    public $options = array();
-    public $headers = array();    
-    private $token;
+            
+    /**
+    * The default header array
+    * 
+    * @var array
+    */
     
+    public $default_headers = array('Content-Type' => 'application/json');    
+    
+    /**
+    * options array object
+    * 
+    * @var array
+    */
+    public $options = array();
+    
+    /**
+    * $header array object
+    * 
+    * @var array
+    */
+    public $headers = array();    
+    
+    /**
+    * token string
+    * 
+    * @var string
+    */
+    private $token = null;
+    
+    /**
+    * Constructor
+    * 
+    * @param array $options: initial options to use api
+    */
     
     public function  __construct($options){ 
         if ($options == null) {
             $options = array();
         }
-        $this->set_options($options);          
-        $this->headers = $options['headers'] != null ? $options['headers'] : $this->default_headers;
+        $this->options = $this->set_default_value($options, $this->default_options);
+        $this->headers = $options['headers'] != null ? array_merge($options['headers'], $this->default_headers) : $this->default_headers;
         if ($this->options['request_id'] != null) {
             $this->headers['X-Request-Id'] = $this->options['request_id'];
         }
@@ -48,24 +83,27 @@ class Client {
         $this->apps = $this->api->apps;
         $this->invoices = $this->api->invoices;
         $this->accounts = $this->api->accounts;
-    }              
+    }
+    
+    /**
+    * Authorization process
+    * @return boolean    
+    */
    
-    public function set_options($options) {
-        $this->options = $this->default_options;        
-        foreach ($options as $key => $value) {            
-            $this->options[$key] = $options[$key];            
+    public function authroize_api() {        
+        if ($this->getToken() !== null) {
+            return true;
         }        
+        return $this->get_token_from_request();        
     }
     
-    public function get_user() {        
-        if ($this->token !== null) {
-            return $this->token;
-        }        
-        $this->token = $this->get_user_from_request();
-        return $this->token;
-    }
+    /**
+    * Get authorization code and setToken
+    *  if process is done successfully, return true else return false
+    * @return boolean
+    */
     
-    public function get_user_from_request() {  
+    public function get_token_from_request() {  
            
         if (isset($_GET['code'])) {            
             $auth_code = $_GET['code'];
@@ -75,31 +113,75 @@ class Client {
             $options['client_secret'] = $this->options['client_secret'];
             $options['redirect_uri'] = $this->get_current_url();            
             $options = array_merge($options, $this->options);
-            $token = $this->auth->authenticate($options, null);                        
-            $this->setToken($token);
+            $auth_result = $this->auth->authenticate($options);            
+            $this->setToken($auth_result->access_token);
         } else {
             return false;
         }
         return true;
     }
     
-    public function setToken($token) {
-      $this->token = token;
+    /**
+    * Initialize access token and session data
+    * 
+    */
+    
+    public function initToken() {
+        unset($_SESSION['gocoin_access_token']);
+        $this->token = null;
     }
     
-    public function getToken() {
-      return $this->token;
+    /**
+    * Set access token
+    * 
+    * @param string $token
+    */
+    
+    public function setToken($token) {
+        $_SESSION['gocoin_access_token'] = $token;
+        $this->token = $token;
     }
+    
+    /**
+    * Return access token
+    *  @return $token
+    */
+    
+    public function getToken() {
+        if ($this->token == null) {
+            if ($_SESSION['gocoin_access_token']) {
+                $this->token = $_SESSION['gocoin_access_token'];
+            }
+        }
+        return $this->token;
+    }
+    
+    /**
+    * Return Api's url
+    * 
+    * @param mixed $options  The Array value including api options
+    * @return string
+    */
     
     public function get_api_url($options) {
         $url = $this->request_client($options['secure'])."://".$this->options['host'].$options['path']."/".$options['api_version'];
         return $url;
     }
     
+    /**
+    * Return dashboard api's url
+    * @return string
+    */
+    
     public function get_dashboard_url() {
         $url = $this->request_client($this->options['secure'])."://".$this->options['dashboard_host'];
         return $url;
-    } 
+    }
+    
+    /**
+    * Return Autorization url
+    *  @return string
+    */
     
     public function get_auth_url() {        
         /*$url = $this->get_dashboard_url($this->options)."/auth";
@@ -111,80 +193,105 @@ class Client {
         );
         $url = $this->create_get_url($url, $options);*/
         return $this->auth->get_auth_url();
-    }         
-    
-    public function authenticate($options, $callback) {      
-      $auth_result = $this->auth->authenticate($options, $callback);      
-      return $auth_result;
     }
+    
+    /**
+    * Return protocol string for http
+    * 
+    * @param mixed $secure
+    * @return mixed
+    */
     
     public function request_client($secure) {
-      if ($secure == null) {
-        $secure = true;
-      }
-      if ($secure) {
-        return 'https';
-      } else {
-        return 'http';
-      }
+        if ($secure == null) {
+            $secure = true;
+        }
+        if ($secure) {
+            return 'https';
+        } else {
+            return 'http';
+        }
     }
+    /**
+    * Return api port
+    * 
+    * @param mixed $secure
+    * @return int
+    */
     
     public function port($secure) {
-      if ($secure == null) {
-        $secure = true;
-      }
-      if ($this->options->port != null) {
-        return $this->options->port;
-      } else if ($secure) {
-        return 443;
-      } else {
-        return 80;
-      }
+        if ($secure == null) {
+            $secure = true;
+        }
+        if ($this->options->port != null) {
+            return $this->options->port;
+        } else if ($secure) {
+            return 443;
+        } else {
+            return 80;
+        }
     }
     
-    public function strip_secure_from_raw($obj) {
-      $strippable = array('client_secret', 'password');
-      if ($obj->body != null) {
-        $obj->body = json_decode($obj->body);
-        foreach( $strippable as $k ) {
-          if ($obj->body[$k] != null) {
-            return $obj->body[$k] = "<" + $k + ">";
-          }
-        }
-      }
-      if ($obj->headers['Authorization'] != null) {
-        $obj->headers['Authorization'] = '<bearer>';
-      }
-      return $obj;
-    } 
+    /**
+    * Get result from curl and process it
+    * 
+    * @param mixed $config configuration parameter
+    * @return Object
+    */
     
     public function raw_request($config) {        
-      $url = $this->request_client($options['secure'])."://".$config['host'] . $config['path'];
-      $headers = $this->default_headers;
+        $url = $this->request_client($options['secure'])."://".$config['host'] . $config['path'];
+        $headers = $this->default_headers;
           
-      return $this->do_request($url, $config['body'], $config['headers'], $config['method']);
+        $result = $this->do_request($url, $config['body'], $config['headers'], $config['method']);
+        $result = json_decode($result);
+        if (isset($result->error)) {
+            $e = new Exception($result->error_description);
+            throw $e;
+        }
+        return $result;
     }
     
-     // Helper Functions   
+    // Helper Functions 
+    
+    /**
+    * merge two array's value 
+    * if $arr have no element in $default_arr then insert the element from $default_arr
+    * 
+    * @param mixed $arr
+    * @param mixed $default_arr
+    * @return array
+    */
+    
+    public function set_default_value($arr, $default_arr) {
+        $result = array();
+        $result = $default_arr;        
+        foreach ($arr as $key => $value) {            
+            $result[$key] = $value;            
+        }
+        return $result;
+    }
+      
     
      /**
-     * createGetUrl
+     * create_get_url
      * Create complete url for GET method with auth parameters     
      * @param String $url The base URL for api
      * @param Array $params The parameters to pass to the URL
+     * @return string
      */    
     public function create_get_url($url,$params){
  
-       if(!empty($params) && $params){
+        if(!empty($params) && $params){
             foreach($params as $param_name=>$param_value){
                 $arr_params[] = "$param_name=".$param_value;
             }
-            $str_params = implode('&',$arr_params);                        
+            $str_params = implode('&',$arr_params);
+            //$str_params = http_build_query($params);
             $url = trim($url) . '?' . $str_params;
         }        
         return $url;
     }
-    
    
     /**
      * do_request
@@ -194,6 +301,7 @@ class Client {
      * @param Array $params The parameters to pass to the request
      * @param $headers curl header
      * @param $method  curl type
+     * @return object
      */
      
     private function do_request($url, $params=false, $headers, $method="POST"){    
@@ -218,13 +326,21 @@ class Client {
             $opts[CURLOPT_USERAGENT] = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.X.Y.Z Safari/525.13.';
         }*/
         $opts[CURLOPT_URL] = $url;
+        $opts[CURLOPT_HEADER] = false;
         $opts[CURLOPT_SSL_VERIFYPEER] = false;
         
+        $curl_header = array();
+        if ($headers && count($headers)) {
+            foreach ($headers as $key => $value) {
+                $curl_header[] = $key.': '.$value;
+            }
+        }
+        
         if (isset($opts[CURLOPT_HTTPHEADER])) {
-            $opts[CURLOPT_HTTPHEADER] = array_merge($this->default_headers, $opts[CURLOPT_HTTPHEADER]);
+            $opts[CURLOPT_HTTPHEADER] = array_merge($curl_header, $opts[CURLOPT_HTTPHEADER]);
         } else {
-            $opts[CURLOPT_HTTPHEADER] = $this->default_headers;
-        } 
+            $opts[CURLOPT_HTTPHEADER] = $curl_header;
+        }         
                
         curl_setopt_array($ch, $opts);
         
@@ -236,14 +352,14 @@ class Client {
           curl_close($ch);
           throw $e;
         }
-        curl_close($ch);
-        var_dump($result);  
+        curl_close($ch);         
         return $result;
     }
     
     /**
+    * get_current_url
     * Returns the Current URL, drop params what is included in default params
-    *  return string: Current Url
+    *  @return string
     */
     public function get_current_url() {
         if (isset($_SERVER['HTTPS']) &&
@@ -264,7 +380,7 @@ class Client {
           $params = explode('&', $parts['query']);
           $retained_params = array();
           foreach ($params as $param) {
-            if ($this->shouldDropParam($param)) {
+            if ($this->should_drop_param($param)) {
               $retained_params[] = $param;
             }
           }
@@ -285,7 +401,13 @@ class Client {
         return $protocol . $parts['host'] . $port . $parts['path'] . $query;
     }
     
-    public function shouldDropParam($param) {        
+    /**
+    * Return the Array including the params should be removed in options
+    * 
+    * @param mixed $param
+    */
+    
+    public function should_drop_param($param) {        
         $drop_params = array('code');
         foreach ( $drop_params as $drop_param ) {
             if (strpos($param, $drop_param) === 0) {
