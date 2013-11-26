@@ -20,7 +20,7 @@ This code is highly experimental. If you are interested in Gocoin, please contac
  $b_auth = $client->authroize_api(); 
 
  $user = $client->api->user;
- $user_info = $client->api->$user->self();
+ $user_info = $user->self();
  ...
 ```
 
