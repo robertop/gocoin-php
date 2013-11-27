@@ -2,6 +2,7 @@
     require_once('../src/api.php');
     require_once('../src/auth.php');
     require_once('../src/client.php');
+
     session_start();
                                                                                               
     /*    
@@ -10,16 +11,24 @@
         scope: read scope
     */
 
+    /// sample headers
+    $headers = array(
+        "'Content-Type' => 'application/json'",
+        "'Content-Type' => 'application/text'"
+    );
+
     $client = new Client( array(        
-        'client_id' => "ecdf74dd26a356c6c20a7b629ccf140c7dcfcb031b80a776de04d616051bd8ab",
-        'client_secret' => "79c2cc4373d998496bbf8e3f0f5be457cbe4a0050c5deef7d617ac5211ef343e",        
+        'client_id' => "6f8d9bb9a577fa25e8187637c50d3c3df162599d7442e958b435d82b50c54c45",
+        'client_secret' => "f44ac8d2dbd8ab0337a0f490e4ac2a97dd192bc35496a5616eac8a807185d30d",
+        'scope' => "user_read_write",
+        'headers' => $headers
     ));    
     
-    $b_auth = $client->authroize_api();        
+    $b_auth = $client->authorize_api();
 
     if ($b_auth) {
         $user = $client->api->user->self();
-        print_r($result);
+        //print_r($user);
     }
     
 ?>

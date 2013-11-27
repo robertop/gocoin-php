@@ -35,27 +35,37 @@ class Api{
     * @param string $route Route string for request
     * @param array $options Array of options
     */
-    
-    public function request($route, $options) {      
+
+
+    public function request($route, $options) {
       if (!(($route != null) && is_string($route))) {
         throw new Exception('Api Request: Route was not defined');
       }
       if (!$this->client->getToken()) {
         throw new Exception('Api not ready: Token was not defined');
       }
-      $headers = $options['header'] ? $options['headers']:  $this->client->default_headers;
+
+      if(!isset($options['header'])){ $options['header'] = null; }
+      if(!isset($options['headers'])){ $options['headers'] = null; }
+
+      if(!isset($body)){ $body = null; }
+
+
+        $headers = $options['header'] ? $options['headers']:  $this->client->default_headers;
+
       $headers['Authorization'] = "Bearer ".$this->client->getToken();
       $options = $this->client->options;      
       $config = array (
         'host' => $options['host'],
         'path' => "".$options['path']."/".$options['api_version'].$route,
-        'method' => options.method,
+        'method' => $options['method'],
         'port' => $this->client->port($options['secure']),
         'headers' => $headers,
         'body' => $body
       );
       return $this->client->raw_request($config);
     }
+
 }
 
 ?>
