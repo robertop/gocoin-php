@@ -29,7 +29,8 @@ class Client {
                   'secure' => true,
                   'method' => 'GET',
                   'headers' => null,
-                  'request_id' => null
+                  'request_id' => null,
+                  'redirect_uri' => null
             );
             
     /**
@@ -52,7 +53,7 @@ class Client {
     * 
     * @var array
     */
-    public $headers = array();    
+    public $headers = array();
     
     /**
     * token string
@@ -72,7 +73,11 @@ class Client {
             $options = array();
         }
         $this->options = $this->set_default_value($options, $this->default_options);
+
+        if(!isset($options['headers'])){ $options['headers'] = null; }
+
         $this->headers = $options['headers'] != null ? array_merge($options['headers'], $this->default_headers) : $this->default_headers;
+
         if ($this->options['request_id'] != null) {
             $this->headers['X-Request-Id'] = $this->options['request_id'];
         }
@@ -90,7 +95,7 @@ class Client {
     * @return boolean    
     */
    
-    public function authroize_api() {        
+    public function authorize_api() {
         if ($this->getToken() !== null) {
             return true;
         }        
@@ -149,7 +154,7 @@ class Client {
     
     public function getToken() {
         if ($this->token == null) {
-            if ($_SESSION['gocoin_access_token']) {
+            if (isset($_SESSION['gocoin_access_token'])) {
                 $this->token = $_SESSION['gocoin_access_token'];
             }
         }
@@ -223,8 +228,9 @@ class Client {
         if ($secure == null) {
             $secure = true;
         }
-        if ($this->options->port != null) {
-            return $this->options->port;
+
+        if ($this->options['port'] != null) {
+            return $this->options['port'];
         } else if ($secure) {
             return 443;
         } else {
@@ -240,7 +246,7 @@ class Client {
     */
     
     public function raw_request($config) {        
-        $url = $this->request_client($options['secure'])."://".$config['host'] . $config['path'];
+        $url = $this->request_client($this->options['secure'])."://".$config['host'] . $config['path'];
         $headers = $this->default_headers;
           
         $result = $this->do_request($url, $config['body'], $config['headers'], $config['method']);
@@ -305,7 +311,7 @@ class Client {
      */
      
     private function do_request($url, $params=false, $headers, $method="POST"){    
-        if (!$ch) {
+        if (!isset($ch)) {
           $ch = curl_init();
         }
 

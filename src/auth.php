@@ -23,7 +23,7 @@ class Auth {
     private $required_code_params = array('grant_type', 'client_id', 'client_secret', 'code', 'redirect_uri');
    
     /**
-    * Contrcutor
+    * Constructor
     *  
     * @param mixed $client
     * @return Auth
