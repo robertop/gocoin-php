@@ -4,10 +4,13 @@
  * GoCoin Api
  * Client class
  * Main interface to use GoCoin Api
- *  
- * @author Roman A <future.roman3@gmail.com> 
- * @version 1.0.0 
-*/
+ *
+ * @author Roman A <future.roman3@gmail.com>
+ * @version 0.1.2
+ *
+ * @author Smith L <smith@gocoin.com>
+ * @since  0.1.2
+ */
 
 require_once('api.php');
 require_once('auth.php');
@@ -149,7 +152,7 @@ class Client {
     
     /**
     * Return access token
-    *  @return $token
+    *  @return String $token
     */
     
     public function getToken() {
@@ -184,7 +187,7 @@ class Client {
     }
     
     /**
-    * Return Autorization url
+    * Return Authorization url
     *  @return string
     */
     
@@ -242,14 +245,19 @@ class Client {
     * Get result from curl and process it
     * 
     * @param mixed $config configuration parameter
+    *
+    * @throws Exception error description
     * @return Object
     */
     
-    public function raw_request($config) {        
+    public function raw_request($config) {
+
+
         $url = $this->request_client($this->options['secure'])."://".$config['host'] . $config['path'];
         $headers = $this->default_headers;
-          
+
         $result = $this->do_request($url, $config['body'], $config['headers'], $config['method']);
+
         $result = json_decode($result);
         if (isset($result->error)) {
             $e = new Exception($result->error_description);
@@ -277,7 +285,6 @@ class Client {
         }
         return $result;
     }
-      
     
      /**
      * create_get_url
@@ -301,16 +308,22 @@ class Client {
    
     /**
      * do_request
+     *
      * Performs a cUrl request with a url . The useragent of the request is hardcoded
      * as the Google Chrome Browser agent
+     *
      * @param String $url The base url to query
-     * @param Array $params The parameters to pass to the request
-     * @param $headers curl header
-     * @param $method  curl type
-     * @return object
+     * @param Boolean $params The parameters to pass to the request
+     * @param Array $headers curl header
+     * @param String $method curl type
+     *
+     * @throws Exception CurlError
+     *
+     * @return Array
      */
      
-    private function do_request($url, $params=false, $headers, $method="POST"){    
+    private function do_request($url, $params=false, $headers, $method="POST"){
+
         if (!isset($ch)) {
           $ch = curl_init();
         }
@@ -331,6 +344,7 @@ class Client {
             // Handle the useragent like we are Google Chrome
             $opts[CURLOPT_USERAGENT] = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.X.Y.Z Safari/525.13.';
         }*/
+
         $opts[CURLOPT_URL] = $url;
         $opts[CURLOPT_HEADER] = false;
         $opts[CURLOPT_SSL_VERIFYPEER] = false;
@@ -349,8 +363,9 @@ class Client {
         }         
                
         curl_setopt_array($ch, $opts);
-        
+
         $result = curl_exec($ch);
+
         $info=curl_getinfo($ch);        
        
         if ($result === false) {
@@ -411,6 +426,8 @@ class Client {
     * Return the Array including the params should be removed in options
     * 
     * @param mixed $param
+    *
+    * @return boolean
     */
     
     public function should_drop_param($param) {        

@@ -1,10 +1,13 @@
-<?php 
+<?php
 /**
  * Account Class
- *  
- * @author Roman A <future.roman3@gmail.com> 
- * @version 1.0.0 
-*/
+ *
+ * @author Roman A <future.roman3@gmail.com>
+ * @version 0.1.2
+ *
+ * @author Smith L <smith@gocoin.com>
+ * @since  0.1.2
+ */
 
 class  Accounts {
     private $api;
@@ -14,7 +17,8 @@ class  Accounts {
     }
     
     public function create($params) {            
-      $route = "/merchants/" + params.id + "/accounts";
+      $route = "/merchants/" . $params['id'] . "/accounts";
+
       $options = array (
         'method' => 'POST',
         'body' => $params['data']
@@ -23,13 +27,13 @@ class  Accounts {
     }
     
     public function get($id) {      
-      $route = "/accounts/" + $id;
+      $route = "/accounts/" . $id;
       $options = array();
       return $this->api->request($route, $options);
     }
     
     public function update($params) {      
-      $route = "/accounts/" + $params['id'];
+      $route = "/accounts/" . $params['id'];
       $options = array(
         'method' => 'PATCH',
         'body' => $params['data']
@@ -38,13 +42,13 @@ class  Accounts {
     }
     
     public function alist($id) {            
-      $route = "/merchants/" + id + "/accounts";
+      $route = "/merchants/" . $id . "/accounts";
       $options = array();
       return $this->api->request($route, $options);
     }
     
     public function delete($id) {            
-      $route = "/accounts/" + id;
+      $route = "/accounts/" . $id;
       $options = array (
         'method' => 'DELETE'
       );
@@ -52,7 +56,7 @@ class  Accounts {
     }
     
     public function verify($params) {       
-      $route = "/accounts/" + params.id + "/verifications";
+      $route = "/accounts/" . $params['id'] . "/verifications";
       $options = array(
         'method' => 'POST',
         'body' => $params['data']

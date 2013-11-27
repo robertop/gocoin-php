@@ -4,7 +4,7 @@ gocoin-PHP
 A PHP client library for the GoCoin API.
 
 #### NOTICE:
-This code is highly experimental. If you are interested in Gocoin, please contact kevin@gocoin.com
+This code is highly experimental. If you are interested in GoCoin, please contact kevin@gocoin.com
 
 ## Usage
 
@@ -17,7 +17,7 @@ This code is highly experimental. If you are interested in Gocoin, please contac
     ));
 // if need to get access_token
  $client->initToken();
- $b_auth = $client->authroize_api(); 
+ $b_auth = $client->authorize_api();
 
  $user = $client->api->user;
  $user_info = $user->self();

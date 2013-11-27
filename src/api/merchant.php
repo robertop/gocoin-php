@@ -2,12 +2,16 @@
 
 /**
  * Merchant Class
- *  
- * @author Roman A <future.roman3@gmail.com> 
- * @version 1.0.0 
-*/
+ *
+ * @author Roman A <future.roman3@gmail.com>
+ * @version 0.1.2
+ *
+ * @author Smith L <smith@gocoin.com>
+ * @since  0.1.2
+ */
 
 class Merchant {
+
     private $api;
     
     public function __construct($api) {
@@ -23,14 +27,14 @@ class Merchant {
       return $this->api->request($route, $options);
     }
     public function delete($id) {            
-      $route = "/merchants/" + $id;
+      $route = "/merchants/" . $id;
       $options = array(
         'method' => 'DELETE'
       );
       return $this->api->request($route, $options);
     }
     public function get($id) {            
-      $route = "/merchants/" + $id;
+      $route = "/merchants/" . $id;
       $options = array();
       return $this->api->request($route, $options);
     }
@@ -42,7 +46,7 @@ class Merchant {
     }
     
     public function update($params, $callback) {          
-      $route = "/merchants/" + $params['id'];
+      $route = "/merchants/" . $params['id'];
       $options = array(
         'method' => 'PATCH',
         'body' => $params['data']

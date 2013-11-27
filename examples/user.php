@@ -26,22 +26,35 @@
     
     $b_auth = $client->authorize_api();
 
+
+    $invoice_params = array(
+         'id' => "7af834d9-aa7a-423c-be16-33ea6a724007",
+         'data' => array (
+            "price_currency" => "BTC",
+            "base_price" => 134,
+            "base_price_currency" => "USD",
+            "confirmations_required" => 6,
+            "notification_level" => "all"
+         )
+    );
+
     if ($b_auth) {
         $user = $client->api->user->self();
-        //print_r($user);
     }
-    
+
 ?>
 
 <html>
 <body>
+
+
     <?php if ($user) : ?>
     <ul>
         <li>User Id : &nbsp;&nbsp;<?php echo $user->id?></li>
         <li>User Email : &nbsp;&nbsp;<?php echo $user->email?></li>
         <li>First Name : &nbsp;&nbsp;<?php echo $user->first_name?></li>
         <li>Last Name :&nbsp;&nbsp;<?php echo $user->last_name?></li>
-        <li>Created Date :&nbsp;&nbsp;<?php echo $user->create_at?></li>
+        <li>Created Date :&nbsp;&nbsp;<?php echo $user->created_at?></li>
         <li>Updated Date :&nbsp;&nbsp;<?php echo $user->updated_at?></li>
         <li>Image Url :&nbsp;&nbsp;<?php echo $user->image_url?></li>
         <li>Merchant Id :&nbsp;&nbsp;<?php echo $user->merchant_id?></li>                
