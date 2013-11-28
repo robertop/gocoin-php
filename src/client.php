@@ -24,8 +24,8 @@ class Client {
     private $default_options = array (
                   'client_id' => null,
                   'client_secret' =>null,
-                  'host' => 'llamacoin-api.herokuapp.com',
-                  'dashboard_host' => 'dashboard.llamacoin.com',
+                  'host' => 'api.gocoin.com',
+                  'dashboard_host' => 'dashboard.gocoin.com',
                   'port' => null,
                   'path' => '/api',
                   'api_version' => 'v1',
@@ -254,11 +254,13 @@ class Client {
 
 
         $url = $this->request_client($this->options['secure'])."://".$config['host'] . $config['path'];
+
         $headers = $this->default_headers;
 
         $result = $this->do_request($url, $config['body'], $config['headers'], $config['method']);
 
         $result = json_decode($result);
+
         if (isset($result->error)) {
             $e = new Exception($result->error_description);
             throw $e;
@@ -333,17 +335,24 @@ class Client {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_TIMEOUT        => 60,            
         );
+
         if ($method == "POST") {
             $opts[CURLOPT_POST] = 1;
             $opts[CURLOPT_POSTFIELDS] = $params;
         }
-        
-       /* if ( isset($_SERVER['HTTP_USER_AGENT']) ) {
-            $opts[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
-        } else {
-            // Handle the useragent like we are Google Chrome
-            $opts[CURLOPT_USERAGENT] = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.X.Y.Z Safari/525.13.';
-        }*/
+
+        if ($method == "PATCH") {
+            $opts[CURLOPT_CUSTOMREQUEST] = "PATCH";
+            $opts[CURLOPT_POSTFIELDS] = $params;
+        }
+
+
+        /* if ( isset($_SERVER['HTTP_USER_AGENT']) ) {
+             $opts[CURLOPT_USERAGENT] = $_SERVER['HTTP_USER_AGENT'];
+         } else {
+             // Handle the useragent like we are Google Chrome
+             $opts[CURLOPT_USERAGENT] = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/0.X.Y.Z Safari/525.13.';
+         }*/
 
         $opts[CURLOPT_URL] = $url;
         $opts[CURLOPT_HEADER] = false;
@@ -360,14 +369,14 @@ class Client {
             $opts[CURLOPT_HTTPHEADER] = array_merge($curl_header, $opts[CURLOPT_HTTPHEADER]);
         } else {
             $opts[CURLOPT_HTTPHEADER] = $curl_header;
-        }         
-               
+        }
+
         curl_setopt_array($ch, $opts);
 
         $result = curl_exec($ch);
 
-        $info=curl_getinfo($ch);        
-       
+        //$info=curl_getinfo($ch);
+
         if ($result === false) {
           $e = new Exception('CurlError'.$result);
           curl_close($ch);
