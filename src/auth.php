@@ -2,14 +2,17 @@
 /**
  * GoCoin Api  Auth class
  * include functions related with authentication
- *  
- * @author Roman A <future.roman3@gmail.com> 
- * @version 1.0.0 
-*/
+ *
+ * @author Roman A <future.roman3@gmail.com>
+ * @version 0.1.2
+ *
+ * @author Smith L <smith@gocoin.com>
+ * @since  0.1.2
+ */
 
 class Auth {
     /**
-    * constant value for required params of passsword authentication
+    * constant value for required params of password authentication
     * 
     * @var array
     */
@@ -53,6 +56,7 @@ class Auth {
     * do process authorization
     * 
     * @param array $options  Authorization options
+    * @throws Exception Authenticate: grant_type was not defined properly
     */
     
     public function authenticate($options) {                  
@@ -83,6 +87,8 @@ class Auth {
     * 
     * @param array $options
     * @param array $required
+    * @throws Exception Authenticate requires '".$k."' option.
+    * @return Array result
     */
     
     public function build_body($options, $required) {

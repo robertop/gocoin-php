@@ -1,11 +1,14 @@
 <?php
 /**
  * GoCoin Api
- * A PHP-based Gocoin client library with a focus on simplicity and ease of integration
- *  
- * @author Roman A <future.roman3@gmail.com> 
- * @version 1.0.0 
-*/
+ * A PHP-based GoCoin client library with a focus on simplicity and ease of integration
+ *
+ * @author Roman A <future.roman3@gmail.com>
+ * @version 0.1.2
+ *
+ * @author Smith L <smith@gocoin.com>
+ * @since  0.1.2
+ */
 
 require_once('api/merchant.php');
 require_once('api/user.php');
@@ -17,8 +20,7 @@ class Api{
             
     /**
      * Constructor for the API     
-     * @param String $user_email  User's Email Address
-     * @param String $api_key  User's Api Key.     
+     * @param Object $client  instance of client
      */
     public function  __construct($client){ 
         $this->client = $client;               
@@ -33,37 +35,46 @@ class Api{
     * Do process request
     *  
     * @param string $route Route string for request
+    * @throws Exception Api Request: Route was not defined
+    *
     * @param array $options Array of options
+    * @throws Exception Api Request: Route was not defined
     */
 
 
     public function request($route, $options) {
-      if (!(($route != null) && is_string($route))) {
+
+        if (!(($route != null) && is_string($route))) {
         throw new Exception('Api Request: Route was not defined');
-      }
-      if (!$this->client->getToken()) {
+        }
+        if (!$this->client->getToken()) {
         throw new Exception('Api not ready: Token was not defined');
-      }
+        }
 
-      if(!isset($options['header'])){ $options['header'] = null; }
-      if(!isset($options['headers'])){ $options['headers'] = null; }
-
-      if(!isset($body)){ $body = null; }
-
+        // temp checks to remove php notices
+        if(!isset($options['header'])){ $options['header'] = null; }
+        if(!isset($options['headers'])){ $options['headers'] = null; }
+        if(!isset($options['body'])){ $options['body'] = null; }
+        if(!isset($options['method'])){ $options['method'] = null; }
 
         $headers = $options['header'] ? $options['headers']:  $this->client->default_headers;
 
-      $headers['Authorization'] = "Bearer ".$this->client->getToken();
-      $options = $this->client->options;      
-      $config = array (
-        'host' => $options['host'],
-        'path' => "".$options['path']."/".$options['api_version'].$route,
-        'method' => $options['method'],
-        'port' => $this->client->port($options['secure']),
-        'headers' => $headers,
-        'body' => $body
-      );
-      return $this->client->raw_request($config);
+        $headers['Authorization'] = "Bearer ".$this->client->getToken();
+
+        // separated $options & $client_options
+        $client_options = $this->client->options;
+
+        // tweaked config since method was coming through
+        $config = array (
+            'host' => $client_options['host'],
+            'path' => "".$client_options['path']."/".$client_options['api_version'].$route,
+            'method' => $options['method'],
+            'port' => $this->client->port($client_options['secure']),
+            'headers' => $headers,
+            'body' => $options['body']
+        );
+
+        return $this->client->raw_request($config);
     }
 
 }
