@@ -26,18 +26,6 @@
     
     $b_auth = $client->authorize_api();
 
-
-    $invoice_params = array(
-         'id' => "7af834d9-aa7a-423c-be16-33ea6a724007",
-         'data' => array (
-            "price_currency" => "BTC",
-            "base_price" => 134,
-            "base_price_currency" => "USD",
-            "confirmations_required" => 6,
-            "notification_level" => "all"
-         )
-    );
-
     if ($b_auth) {
         $user = $client->api->user->self();
     }
