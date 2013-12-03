@@ -6,10 +6,11 @@
  * Main interface to use GoCoin Api
  *
  * @author Roman A <future.roman3@gmail.com>
- * @version 0.1.2
+ * @version 0.1.3
  *
  * @author Smith L <smith@gocoin.com>
  * @since  0.1.2
+ * 
  */
 
 require_once('api.php');
@@ -120,7 +121,7 @@ class Client {
             $options['client_id'] = $this->options['client_id'];
             $options['client_secret'] = $this->options['client_secret'];
             $options['redirect_uri'] = $this->get_current_url();            
-            $options = array_merge($options, $this->options);
+            $options = $this->set_default_value($options, $this->options);
             $auth_result = $this->auth->authenticate($options);            
             $this->setToken($auth_result->access_token);
         } else {
@@ -137,6 +138,48 @@ class Client {
     public function initToken() {
         unset($_SESSION['gocoin_access_token']);
         $this->token = null;
+    }
+    
+    /**
+    * Return client id
+    *  @return String $client_id
+    */
+    
+    public function getClientId() {
+        return $this->options['client_id'];
+    }
+    
+    /**
+    * Set client_id in options array
+    * 
+    * @param mixed $client_id
+    * @return Client
+    */
+    
+    public function setClientId($client_id) {
+        $this->options['client_id'] = $client_id;
+        return $this;
+    }
+    
+    /**
+    * Return client secret 
+    *  @return String $client_secret
+    */
+    
+    public function getClientSecret() {
+        return $this->options['client_secret'];  
+    }
+    
+    /**
+    * Set client secret in options array
+    * 
+    * @param mixed $secret
+    * @return Client
+    */
+    
+    public function setClientSecret($secret) {
+        $this->options['client_secret'] = $secret;
+        return $this;
     }
     
     /**
@@ -172,7 +215,8 @@ class Client {
     */
     
     public function get_api_url($options) {
-        $url = $this->request_client($options['secure'])."://".$this->options['host'].$options['path']."/".$options['api_version'];
+        $options = $this->set_default_value($options, $this->options);
+        $url = $this->request_client($options['secure'])."://".$options['host'].$options['path']."/".$options['api_version'];
         return $url;
     }
     
@@ -324,8 +368,9 @@ class Client {
      * @return Array
      */
      
-    private function do_request($url, $params=false, $headers, $method="POST"){
+    public function do_request($url, $params=false, $headers, $method="POST"){
 
+        var_dump($url);
         if (!isset($ch)) {
           $ch = curl_init();
         }
