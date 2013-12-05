@@ -3,8 +3,6 @@ gocoin-PHP
 
 A PHP client library for the GoCoin API.
 
-#### NOTICE:
-This code is highly experimental. If you are interested in GoCoin, please contact kevin@gocoin.com
 
 ## Usage
 
