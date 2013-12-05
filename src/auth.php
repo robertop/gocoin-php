@@ -4,7 +4,7 @@
  * include functions related with authentication
  *
  * @author Roman A <future.roman3@gmail.com>
- * @version 0.1.2
+ * @version 0.1.3
  *
  * @author Smith L <smith@gocoin.com>
  * @since  0.1.2
@@ -56,7 +56,6 @@ class Auth {
     * do process authorization
     * 
     * @param array $options  Authorization options
-    * @throws Exception Authenticate: grant_type was not defined properly
     */
     
     public function authenticate($options) {                  
@@ -66,11 +65,15 @@ class Auth {
         } elseif ($options['grant_type'] == 'authorization_code') {
             $required = $this->required_code_params;
         } else {
-            throw new Exception('Authenticate: grant_type was not defined properly');
+            $this->client->setError("Authenticate: grant_type was not defined properly");
+            return false;
         }      
   
       $headers = $options['headers'] != null ? $options['headers'] : $this->client->default_headers;
       $body = $this->build_body($options, $required);
+      if ($body == false) {
+          return false;
+      }
       $config = array(
         'host' => $options['host'],
         'path' => $options['path']. "/". $options['api_version'] . "/oauth/token",
@@ -87,7 +90,6 @@ class Auth {
     * 
     * @param array $options
     * @param array $required
-    * @throws Exception Authenticate requires '".$k."' option.
     * @return Array result
     */
     
@@ -95,7 +97,8 @@ class Auth {
         $result = array();
         foreach ($required as $k) {
             if (!$options[$k]) {
-                throw new Exception("Authenticate requires '".$k."' option.");
+                $this->client->setError("Authenticate: grant_type was not defined properly");
+                return false;
             }
             $result[$k] = $options[$k];
         }

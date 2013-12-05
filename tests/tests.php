@@ -4,7 +4,7 @@
  * A PHP Unit Test case to test GoCoin Api used by PHPUnit
  *
  * @author Roman A <future.roman3@gmail.com>
- * @version 0.1.0
+ * @version 0.1.1
  *
  */
  
@@ -181,7 +181,7 @@ class PHPGocoinTestCase extends PHPUnit_Framework_TestCase {
                          "Authorization"=> "Bearer ". $this->access_token);
        $options = array();
        $url = $client->get_api_url($options);
-       $test_url = "https://api.gocion.com/api/v1";
+       $test_url = "https://api.gocoin.com/api/v1";
        $this->assertEquals($url, $test_url,
                             'Expect url'); 
     }
@@ -196,12 +196,25 @@ class PHPGocoinTestCase extends PHPUnit_Framework_TestCase {
         $client->setToken($this->expired_token);
         $options = array('secure' => false);
         $url = $client->get_api_url($options)."/user";
+        print_r($url);
         $headers = array( "Content-Type"=> "application/json",
                          "Authorization"=> "Bearer ". $this->expired_token);
         
         $curl_result = $client->do_request($url, false, $headers, "POST");
-        $this->assertEquals($curl_result!=false , true,
-                            'Except Curl result');
+        $this->assertEquals($curl_result==false , true,
+                            'Expect Curl result');
+    }
+    
+    public function testSetEror() {
+       $client = new Client( array(        
+            'client_id' => self::CLIENT_ID,
+            'client_secret' => self::CLIENT_SECRET,
+            'scope' => "user_read_write",
+        ));
+       $err_msg = "Test Error Message";
+       $client->setError($err_msg);
+       $this->assertEquals($client->getError(), $err_msg,
+                            'Expect Error Message');
     }
 }
 ?>

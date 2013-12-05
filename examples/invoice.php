@@ -41,6 +41,9 @@
     if ($b_auth) {
         // retrieve user details
         $user = $client->api->user->self();
+        if (!$user) {
+            echo $client->getError();
+        }
 
         // get an invoice by id
         // $get_my_invoice = $client->api->invoices->get("a3c4ff2d-1ced-4ffa-ae9b-16255529973a");
@@ -55,11 +58,15 @@
             'id' => $user->merchant_id,
             'data' => $data_string
         );
+        
+        if (!$invoice_params) {
+            echo $client->getError();
+        }
 
         // create an invoice
         $my_invoice = $client->api->invoices->create($invoice_params);
-
-
+    } else {
+        echo $client->getError();
     }
 
 

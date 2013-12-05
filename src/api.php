@@ -4,7 +4,7 @@
  * A PHP-based GoCoin client library with a focus on simplicity and ease of integration
  *
  * @author Roman A <future.roman3@gmail.com>
- * @version 0.1.2
+ * @version 0.1.3
  *
  * @author Smith L <smith@gocoin.com>
  * @since  0.1.2
@@ -35,20 +35,20 @@ class Api{
     * Do process request
     *  
     * @param string $route Route string for request
-    * @throws Exception Api Request: Route was not defined
-    *
     * @param array $options Array of options
-    * @throws Exception Api Request: Route was not defined
+    * 
     */
 
 
     public function request($route, $options) {
 
         if (!(($route != null) && is_string($route))) {
-        throw new Exception('Api Request: Route was not defined');
+            $this->client->setError('Api Request: Route was not defined');
+            return false;
         }
         if (!$this->client->getToken()) {
-        throw new Exception('Api not ready: Token was not defined');
+            $this->client->setError('Api not ready: Token was not defined');
+            return false;
         }
 
         // temp checks to remove php notices

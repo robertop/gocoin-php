@@ -67,6 +67,13 @@ class Client {
     private $token = null;
     
     /**
+    * error string;
+    * 
+    * @var mixed
+    */
+    private $error = "";
+    
+    /**
     * Constructor
     * 
     * @param array $options: initial options to use api
@@ -125,6 +132,7 @@ class Client {
             $auth_result = $this->auth->authenticate($options);            
             $this->setToken($auth_result->access_token);
         } else {
+            $this->setError("Can not get authroization code");
             return false;
         }
         return true;
@@ -205,6 +213,27 @@ class Client {
             }
         }
         return $this->token;
+    }
+    
+    /**
+    * Return operation error
+    *  @return  String $error
+    */
+    
+    public function getError() {
+        return $this->error;
+    }
+    
+    /**
+    *  Set error string for operation
+    * 
+    * @param mixed $error
+    * @return Client
+    */
+    
+    public function setError($error) {
+        $this->error = $error;
+        return $this;
     }
     
     /**
@@ -290,7 +319,6 @@ class Client {
     * 
     * @param mixed $config configuration parameter
     *
-    * @throws Exception error description
     * @return Object
     */
     
@@ -306,8 +334,8 @@ class Client {
         $result = json_decode($result);
 
         if (isset($result->error)) {
-            $e = new Exception($result->error_description);
-            throw $e;
+            $this->setError($result->error_description);
+            return false;
         }
         return $result;
     }
@@ -363,14 +391,12 @@ class Client {
      * @param Array $headers curl header
      * @param String $method curl type
      *
-     * @throws Exception CurlError
      *
      * @return Array
      */
      
-    public function do_request($url, $params=false, $headers, $method="POST"){
+    public function do_request($url, $params=false, $headers, $method="POST") {
 
-        var_dump($url);
         if (!isset($ch)) {
           $ch = curl_init();
         }
@@ -420,12 +446,10 @@ class Client {
 
         $result = curl_exec($ch);
 
-        //$info=curl_getinfo($ch);
-
         if ($result === false) {
-          $e = new Exception('CurlError'.$result);
-          curl_close($ch);
-          throw $e;
+            $this->setError(curl_error($ch));
+            curl_close($ch);
+            return false;
         }
         curl_close($ch);         
         return $result;

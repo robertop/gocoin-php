@@ -28,6 +28,11 @@
 
     if ($b_auth) {
         $user = $client->api->user->self();
+        if (!$user) {
+            echo $client->getError();
+        }
+    } else {
+        echo $client->getError();
     }
 
 ?>
