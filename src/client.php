@@ -285,9 +285,6 @@ class Client {
     
     public function request_client($secure) {
 
-        echo $secure;
-        echo "yo";
-
         if ($secure === null) {
             $secure = true;
         }
@@ -329,10 +326,6 @@ class Client {
     public function raw_request($config) {
 
         $url = $this->request_client($this->options['secure'])."://".$config['host'] . $config['path'];
-
-        echo $this->options['secure'];
-        echo "<br>";
-        echo $url;
 
         $headers = $this->default_headers;
 
