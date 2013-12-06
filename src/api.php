@@ -69,7 +69,7 @@ class Api{
             'host' => $client_options['host'],
             'path' => "".$client_options['path']."/".$client_options['api_version'].$route,
             'method' => $options['method'],
-            'port' => $this->client->port($client_options['secure']),
+            'port' => $this->client->port($client_options['port']),
             'headers' => $headers,
             'body' => $options['body']
         );
