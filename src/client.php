@@ -284,7 +284,8 @@ class Client {
     */
     
     public function request_client($secure) {
-        if ($secure == null) {
+
+        if ($secure === null) {
             $secure = true;
         }
         if ($secure) {
@@ -301,7 +302,7 @@ class Client {
     */
     
     public function port($secure) {
-        if ($secure == null) {
+        if ($secure === null) {
             $secure = true;
         }
 
@@ -323,7 +324,6 @@ class Client {
     */
     
     public function raw_request($config) {
-
 
         $url = $this->request_client($this->options['secure'])."://".$config['host'] . $config['path'];
 
@@ -378,6 +378,31 @@ class Client {
             $url = trim($url) . '?' . $str_params;
         }        
         return $url;
+    }
+
+    /**
+     * get xrate
+     *
+     * Gets the xrate - aka current btc exchange rate in US Dollars
+     *
+     * @throws Exception error
+     * @return Array
+     */
+
+    public function get_xrate() {
+
+        $xrate_config['url'] = 'http://x.g0cn.com/prices';
+        $xrate_config['method'] = 'GET';
+
+        $result = $this->do_request($xrate_config['url'], '', '', $xrate_config['method']);
+
+        $result = json_decode($result);
+
+        if (isset($result->error)) {
+            $e = new Exception($result->error_description);
+            throw $e;
+        }
+        return $result;
     }
    
     /**

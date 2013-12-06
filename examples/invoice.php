@@ -18,8 +18,8 @@
     );
 
     $client = new Client( array(        
-        'client_id' => "6f8d9bb9a577fa25e8187637c50d3c3df162599d7442e958b435d82b50c54c45",
-        'client_secret' => "f44ac8d2dbd8ab0337a0f490e4ac2a97dd192bc35496a5616eac8a807185d30d",
+        'client_id' => "PLACE_YOUR_CLIENT_ID_HERE",
+        'client_secret' => "PLACE_YOUR_CLIENT_SECRET_HERE",
         'scope' => "user_read_write invoice_read_write",
         'headers' => $headers
     ));    
@@ -46,7 +46,7 @@
         }
 
         // get an invoice by id
-        // $get_my_invoice = $client->api->invoices->get("a3c4ff2d-1ced-4ffa-ae9b-16255529973a");
+        // $get_my_invoice = $client->api->invoices->get("PUT_YOUR_INVOICE_ID_HERE");
 
         // search invoice - no params returns all avail
         //$fake_params = array();
