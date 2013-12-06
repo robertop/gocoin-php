@@ -6,10 +6,11 @@
  * Main interface to use GoCoin Api
  *
  * @author Roman A <future.roman3@gmail.com>
- * @version 0.1.2
+ * @version 0.1.3
  *
  * @author Smith L <smith@gocoin.com>
  * @since  0.1.2
+ * 
  */
 
 require_once('api.php');
@@ -66,6 +67,13 @@ class Client {
     private $token = null;
     
     /**
+    * error string;
+    * 
+    * @var mixed
+    */
+    private $error = "";
+    
+    /**
     * Constructor
     * 
     * @param array $options: initial options to use api
@@ -120,10 +128,11 @@ class Client {
             $options['client_id'] = $this->options['client_id'];
             $options['client_secret'] = $this->options['client_secret'];
             $options['redirect_uri'] = $this->get_current_url();            
-            $options = array_merge($options, $this->options);
+            $options = $this->set_default_value($options, $this->options);
             $auth_result = $this->auth->authenticate($options);            
             $this->setToken($auth_result->access_token);
         } else {
+            $this->setError("Can not get authroization code");
             return false;
         }
         return true;
@@ -137,6 +146,48 @@ class Client {
     public function initToken() {
         unset($_SESSION['gocoin_access_token']);
         $this->token = null;
+    }
+    
+    /**
+    * Return client id
+    *  @return String $client_id
+    */
+    
+    public function getClientId() {
+        return $this->options['client_id'];
+    }
+    
+    /**
+    * Set client_id in options array
+    * 
+    * @param mixed $client_id
+    * @return Client
+    */
+    
+    public function setClientId($client_id) {
+        $this->options['client_id'] = $client_id;
+        return $this;
+    }
+    
+    /**
+    * Return client secret 
+    *  @return String $client_secret
+    */
+    
+    public function getClientSecret() {
+        return $this->options['client_secret'];  
+    }
+    
+    /**
+    * Set client secret in options array
+    * 
+    * @param mixed $secret
+    * @return Client
+    */
+    
+    public function setClientSecret($secret) {
+        $this->options['client_secret'] = $secret;
+        return $this;
     }
     
     /**
@@ -165,6 +216,27 @@ class Client {
     }
     
     /**
+    * Return operation error
+    *  @return  String $error
+    */
+    
+    public function getError() {
+        return $this->error;
+    }
+    
+    /**
+    *  Set error string for operation
+    * 
+    * @param mixed $error
+    * @return Client
+    */
+    
+    public function setError($error) {
+        $this->error = $error;
+        return $this;
+    }
+    
+    /**
     * Return Api's url
     * 
     * @param mixed $options  The Array value including api options
@@ -172,7 +244,8 @@ class Client {
     */
     
     public function get_api_url($options) {
-        $url = $this->request_client($options['secure'])."://".$this->options['host'].$options['path']."/".$options['api_version'];
+        $options = $this->set_default_value($options, $this->options);
+        $url = $this->request_client($options['secure'])."://".$options['host'].$options['path']."/".$options['api_version'];
         return $url;
     }
     
@@ -250,7 +323,6 @@ class Client {
     * 
     * @param mixed $config configuration parameter
     *
-    * @throws Exception error description
     * @return Object
     */
     
@@ -269,8 +341,8 @@ class Client {
         $result = json_decode($result);
 
         if (isset($result->error)) {
-            $e = new Exception($result->error_description);
-            throw $e;
+            $this->setError($result->error_description);
+            return false;
         }
         return $result;
     }
@@ -351,12 +423,11 @@ class Client {
      * @param Array $headers curl header
      * @param String $method curl type
      *
-     * @throws Exception CurlError
      *
      * @return Array
      */
      
-    private function do_request($url, $params=false, $headers, $method="POST"){
+    public function do_request($url, $params=false, $headers, $method="POST") {
 
         if (!isset($ch)) {
           $ch = curl_init();
@@ -407,12 +478,10 @@ class Client {
 
         $result = curl_exec($ch);
 
-        //$info=curl_getinfo($ch);
-
         if ($result === false) {
-          $e = new Exception('CurlError'.$result);
-          curl_close($ch);
-          throw $e;
+            $this->setError(curl_error($ch));
+            curl_close($ch);
+            return false;
         }
         curl_close($ch);         
         return $result;

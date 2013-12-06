@@ -19,7 +19,7 @@
 
     $client = new Client( array(        
         'client_id' => "6f8d9bb9a577fa25e8187637c50d3c3df162599d7442e958b435d82b50c54c45",
-        'client_secret' => "f834df3ae2a18256ed2a20d719b2f88b57756ffb5d1df50ab53aa35efecda28e",
+        'client_secret' => "f44ac8d2dbd8ab0337a0f490e4ac2a97dd192bc35496a5616eac8a807185d30d",
         'scope' => "user_read_write",
         'headers' => $headers
     ));    
@@ -28,9 +28,11 @@
 
     if ($b_auth) {
         $user = $client->api->user->self();
-
-        // get the exchange rate from the gocoin web service
-        $get_the_xrate = $client->get_xrate();
+        if (!$user) {
+            echo $client->getError();
+        }
+    } else {
+        echo $client->getError();
     }
 
 ?>
@@ -40,7 +42,6 @@
 
 
     <?php if ($user) : ?>
-        <b>User details:</b>
     <ul>
         <li>User Id : &nbsp;&nbsp;<?php echo $user->id?></li>
         <li>User Email : &nbsp;&nbsp;<?php echo $user->email?></li>
@@ -52,14 +53,5 @@
         <li>Merchant Id :&nbsp;&nbsp;<?php echo $user->merchant_id?></li>                
     </ul>
     <?php endif;?>
-
-    <?php if ($get_the_xrate) : ?>
-
-        <span><b>Timestamp:</b> <?php echo $get_the_xrate->timestamp; ?></span>
-        <br>
-        <span><b>xrate Price:</b> <?php echo $get_the_xrate->prices->BTC->USD; ?></span>
-
-    <?php endif;?>
-
 </body>
 </html>
