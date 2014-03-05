@@ -26,8 +26,7 @@ class User {
     public function delete($id) {            
         $route = "/users/" . $id;
         $options = array(
-            'method' => 'POST',
-            'body' => $params['data']
+            'method' => 'POST'
         );
         return $this->api->request($route, $options);
     }
